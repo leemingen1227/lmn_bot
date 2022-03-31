@@ -1,17 +1,13 @@
-
 from __future__ import unicode_literals
 import os
-
-from flask import Flask, request, abort, render_template
+from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageSendMessage
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 import configparser
 
-import urllib
-import re
-import random
+from custom_models import utils, PhoebeTalks
 
 app = Flask(__name__)
 
@@ -19,14 +15,9 @@ app = Flask(__name__)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-
-
 line_bot_api = LineBotApi(config.get('line-bot', 'channel_access_token'))
 handler = WebhookHandler(config.get('line-bot', 'channel_secret'))
 
-@app.route("/")
-def home():
-    return render_template("home.html")
 
 # 接收 LINE 的資訊
 @app.route("/callback", methods=['POST'])
@@ -43,47 +34,26 @@ def callback():
 
     return 'OK'
 
-# 幫你在 google 上找圖
+# 紀錄資料
 @handler.add(MessageEvent, message=TextMessage)
-def google_isch(event):
+def reply_text_message(event):
     
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
-        # 先找圖
-        try:
-            q_string = {'tbm': 'isch', 'q': event.message.text}
-            url = f"https://www.google.com/search?{urllib.parse.urlencode(q_string)}/"
-            headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'}
+        
+        reply = False
+        
+        if not reply:
+            reply = PhoebeTalks.insert_record(event)
+        
+        if not reply:
+            reply = PhoebeTalks.img_search(event)
+                    
+        if not reply:
+            reply = PhoebeTalks.img_search(event)
+                    
+        if not reply:
+            reply = PhoebeTalks.pretty_echo(event)
             
-            req = urllib.request.Request(url, headers = headers)
-            conn = urllib.request.urlopen(req)
-            
-            print('fetch conn finish')
-            
-            pattern = 'img data-src="\S*"'
-            img_list = []
-            
-            for match in re.finditer(pattern, str(conn.read())):
-                img_list.append(match.group()[14:-1])
-                
-            random_img_url = img_list[random.randint(0, len(img_list)+1)]
-            print('fetch img url finish')
-            print(random_img_url)
-            
-            line_bot_api.reply_message(
-                event.reply_token,
-                ImageSendMessage(
-                    original_content_url=random_img_url,
-                    preview_image_url=random_img_url
-                )
-            )
-            
-        # 找不到圖就學說話    
-        except:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=event.message.text)
-            )
-
 
 if __name__ == "__main__":
     app.run()
