@@ -38,26 +38,27 @@ def callback():
 
     return 'OK'
 
-# 請 pixabay 幫我們找圖
+# 幫你在 google 上找圖
 @handler.add(MessageEvent, message=TextMessage)
-def pixabay_isch(event):
+def google_isch(event):
     
     if event.source.user_id != "Udeadbeefdeadbeefdeadbeefdeadbeef":
         # 先找圖
         try:
-            url = f"https://pixabay.com/images/search/{urllib.parse.urlencode({'q':event.message.text})[2:]}/"
+            q_string = {'tbm': 'isch', 'q': event.message.text}
+            url = f"https://www.google.com/search?{urllib.parse.urlencode(q_string)}/"
             headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'}
             
             req = urllib.request.Request(url, headers = headers)
             conn = urllib.request.urlopen(req)
             
-            print('fetch page finish')
+            print('fetch conn finish')
             
-            pattern = 'img srcset="\S*\s\w*,'
+            pattern = 'img data-src="\S*"'
             img_list = []
             
             for match in re.finditer(pattern, str(conn.read())):
-                img_list.append(match.group()[12:-3])
+                img_list.append(match.group()[14:-1])
                 
             random_img_url = img_list[random.randint(0, len(img_list)+1)]
             print('fetch img url finish')
@@ -70,13 +71,14 @@ def pixabay_isch(event):
                     preview_image_url=random_img_url
                 )
             )
-        # 找不到圖就學說話
+            
+        # 找不到圖就學說話    
         except:
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=event.message.text)
             )
-            pass
+
 
 if __name__ == "__main__":
     app.run()
