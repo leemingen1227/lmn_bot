@@ -47,7 +47,7 @@ def pixabay_isch(event):
             url = f"https://pixabay.com/images/search/{urllib.parse.urlencode({'q':event.message.text})[2:]}/"
             headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'}
             
-            req = urllib.request.Request(url, headers = headers)
+            req = urllib.request.Request(url)
             conn = urllib.request.urlopen(req)
             
             print('fetch page finish')
