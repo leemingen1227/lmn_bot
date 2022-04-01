@@ -3,11 +3,11 @@ import os
 from flask import Flask, request, abort
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, PostbackEvent
 
 import configparser
 
-from custom_models import utils, PhoebeTalks
+from custom_models import utils, PhoebeTalks, PhoebeFlex
 
 app = Flask(__name__)
 
@@ -46,7 +46,7 @@ def reply_text_message(event):
             reply = PhoebeTalks.insert_record(event)
         
         if not reply:
-            reply = PhoebeTalks.img_search(event)
+            reply = PhoebeFlex.img_search_flex(event)
                     
         if not reply:
             reply = PhoebeTalks.img_search(event)
