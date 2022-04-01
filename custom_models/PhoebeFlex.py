@@ -36,7 +36,7 @@ def img_search_flex(event):
         try:
         
             translate = utils.get_translate(event.message.text[5:])
-            random_img_url = utils.get_img_url(img_source='pixabay', target=translate)
+            random_img_url = utils.get_img_url(img_source='google', target=translate)
 
             contents = utils.prepare_img_search_flex(event.message.text[5:], translate, random_img_url)
 
