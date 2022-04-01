@@ -42,17 +42,17 @@ def reply_text_message(event):
         
         reply = False
         
-        #if not reply:
-            # reply = PhoebeTalks.insert_record(event)
+        if not reply:
+            reply = PhoebeTalks.insert_record(event)
         
         if not reply:
             reply = PhoebeFlex.img_search_flex(event)
                     
-        #if not reply:
-            # reply = PhoebeTalks.img_search(event)
+        if not reply:
+            reply = PhoebeTalks.img_search(event)
                     
-        #if not reply:
-            # reply = PhoebeTalks.pretty_echo(event)
+        if not reply:
+            reply = PhoebeTalks.pretty_echo(event)
             
 
 if __name__ == "__main__":
